@@ -135,12 +135,6 @@ def main():
         "tid": 0,
         "slug": "all"
     }, {
-        "name": "番剧",
-        "type": "bangumi",
-        "tid": 13,
-        "slug": "bangumi",
-        "season_type": 1
-    }, {
         "name": "国产动画",
         "type": "bangumi",
         "tid": 168,
@@ -216,33 +210,6 @@ def main():
         "name": "影视",
         "tid": 181,
         "slug": "cinephile"
-    }, {
-        "name": "电影",
-        "type": "cinema",
-        "slug": "movie",
-        "tid": 23,
-        "season_type": 2
-    }, {
-        "name": "电视剧",
-        "type": "cinema",
-        "slug": "tv",
-        "tid": 11,
-        "season_type": 5
-    }, {
-        "name": "综艺",
-        "type": "cinema",
-        "slug": "variety",
-        "season_type": 7
-    }, {
-        "name": "原创",
-        "slug": "origin",
-        "tid": 0,
-        "rank_type": "origin"
-    }, {
-        "name": "新人",
-        "slug": "rookie",
-        "tid": 0,
-        "rank_type": "rookie"
     }]
     
     # 先清空之前的CSV文件
