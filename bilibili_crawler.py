@@ -200,11 +200,11 @@ def main():
     # 先清空之前的CSV文件
     print("🧹 正在清空之前的CSV文件...")
     
-    # 确保data目录存在
-    if not os.path.exists(DATA_DIR):
-        os.makedirs(DATA_DIR)
+    # 确保数据目录存在
+    if not os.path.exists(RANKING_DIR):
+        os.makedirs(RANKING_DIR)
     
-    csv_files = glob.glob(f"{DATA_DIR}/{CSV_PREFIX}*-*.csv")
+    csv_files = glob.glob(f"{RANKING_DIR}/{CSV_PREFIX}*-*.csv")
     for csv_file in csv_files:
         try:
             os.remove(csv_file)
@@ -233,7 +233,7 @@ def main():
             df = pd.DataFrame(data_rows)
             
             # 保存到CSV
-            filename = f'{DATA_DIR}/{CSV_PREFIX}-{category_name}-高质量.csv'
+            filename = f'{RANKING_DIR}/{CSV_PREFIX}-{category_name}-高质量.csv'
             df.to_csv(filename, index=False, encoding='utf_8_sig')
             successful_categories += 1
             print(f'✅ 写入成功: {filename}，共 {len(df)} 条高质量数据')
@@ -261,7 +261,7 @@ def main():
     print(f"🎉 数据爬取完成！")
     print(f"✅ 成功: {successful_categories} 个分类")
     print(f"❌ 失败: {failed_categories} 个分类")
-    print(f"📁 生成的CSV文件保存在 {DATA_DIR}/ 目录")
+    print(f"📁 生成的CSV文件保存在 {RANKING_DIR}/ 目录")
     print(f"{'='*60}")
 
 if __name__ == "__main__":
