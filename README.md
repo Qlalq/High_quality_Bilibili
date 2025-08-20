@@ -20,7 +20,7 @@
 ## 项目结构
 
 ```
-Bilibili/
+High_quality_Bilibili/
 ├── bilibili_crawler.py    # 🚀 主程序文件 - 核心爬虫逻辑
 ├── config.py              # ⚙️ 配置文件 - 爬虫参数设置
 ├── run.sh                 # 🔧 启动脚本 - 一键运行工具
@@ -56,14 +56,14 @@ pip install pandas requests
 
 #### 方式1: 使用启动脚本（推荐）
 ```bash
-cd Bilibili
+cd High_quality_Bilibili
 chmod +x run.sh
 ./run.sh
 ```
 
 #### 方式2: 直接运行Python程序
 ```bash
-cd Bilibili
+cd High_quality_Bilibili
 python bilibili_crawler.py
 ```
 
