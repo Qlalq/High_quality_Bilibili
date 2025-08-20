@@ -4,7 +4,7 @@
 LIKE_RATE_THRESHOLD = 0.1  # 点赞率阈值，大于此值认为是高质量视频
 
 # 爬取设置
-TARGET_COUNT_PER_CATEGORY = 100  # 每个分类爬取的目标视频数量
+TARGET_COUNT_PER_CATEGORY = 10  # 每个分类爬取的目标视频数量
 REQUEST_DELAY_MIN = 2  # 请求间隔最小秒数
 REQUEST_DELAY_MAX = 4  # 请求间隔最大秒数
 REQUEST_TIMEOUT = 10   # 请求超时时间（秒）

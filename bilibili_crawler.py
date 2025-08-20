@@ -5,10 +5,7 @@ B站高质量视频爬虫
 1. 爬取B站各分类排行榜数据
 2. 计算视频点赞率（点赞数/播放数）
 3. 筛选点赞率>0.1的高质量视频
-4. 保存到CSV文件，支持25个分类
-
-作者: GitHub Copilot
-创建时间: 2025-08-20
+4. 保存到CSV文件，支持19个分类
 """
 
 import pandas as pd
@@ -17,28 +14,16 @@ import time
 import random
 import os
 import glob
+from config import *  # 导入配置文件
 
-def get_bilibili_ranking_data(tid, category_name, target_count=10):
+def get_bilibili_ranking_data(tid, category_name, target_count=TARGET_COUNT_PER_CATEGORY):
     """
-    获取B站排行榜数据，只保留点赞率>0.1的高质量视频
+    获取B站排行榜数据，只保留点赞率>LIKE_RATE_THRESHOLD的高质量视频
     """
-    url = f'https://api.bilibili.com/x/web-interface/ranking/v2?rid={tid}&type=all'
+    url = f'{BASE_URL}?rid={tid}&type=all'
     
     # 更完整的headers，模拟真实浏览器
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Referer': 'https://www.bilibili.com/',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Connection': 'keep-alive',
-        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-site',
-    }
+    headers = HEADERS.copy()  # 使用配置文件中的headers
     
     print(f"正在爬取: {category_name}")
     
@@ -48,11 +33,11 @@ def get_bilibili_ranking_data(tid, category_name, target_count=10):
         session.headers.update(headers)
         
         # 首先访问首页建立session
-        session.get('https://www.bilibili.com/', timeout=10)
+        session.get('https://www.bilibili.com/', timeout=REQUEST_TIMEOUT)
         time.sleep(1)
         
         # 然后请求API
-        response = session.get(url, timeout=10)
+        response = session.get(url, timeout=REQUEST_TIMEOUT)
         print(f"状态码: {response.status_code}")
         
         if response.status_code != 200:
@@ -91,8 +76,8 @@ def get_bilibili_ranking_data(tid, category_name, target_count=10):
             # 计算点赞率
             like_rate = like_count / view_count
             
-            # 只保留点赞率>0.1的高质量视频
-            if like_rate > 0.1:
+            # 只保留点赞率>LIKE_RATE_THRESHOLD的高质量视频
+            if like_rate > LIKE_RATE_THRESHOLD:
                 row = {
                     '视频标题': video.get('title', ''),
                     '视频地址': f"https://www.bilibili.com/video/{video.get('bvid', '')}",
@@ -112,7 +97,7 @@ def get_bilibili_ranking_data(tid, category_name, target_count=10):
                 if high_quality_count >= target_count:
                     break
         
-        print(f"筛选出 {len(data_rows)} 条高质量数据（点赞率>0.1）")
+        print(f"筛选出 {len(data_rows)} 条高质量数据（点赞率>{LIKE_RATE_THRESHOLD}）")
         return data_rows
         
     except requests.exceptions.Timeout:
@@ -214,14 +199,12 @@ def main():
     
     # 先清空之前的CSV文件
     print("🧹 正在清空之前的CSV文件...")
-    import os
-    import glob
     
     # 确保data目录存在
-    if not os.path.exists("data"):
-        os.makedirs("data")
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
     
-    csv_files = glob.glob("data/B站TOP*-*.csv")
+    csv_files = glob.glob(f"{DATA_DIR}/{CSV_PREFIX}*-*.csv")
     for csv_file in csv_files:
         try:
             os.remove(csv_file)
@@ -230,7 +213,7 @@ def main():
             print(f"❌ 删除文件失败 {csv_file}: {e}")
     
     print(f"\n{'='*60}")
-    print("🎯 开始爬取高质量视频数据（点赞率>0.1，每个分类10个）")
+    print(f"🎯 开始爬取高质量视频数据（点赞率>{LIKE_RATE_THRESHOLD}，每个分类{TARGET_COUNT_PER_CATEGORY}个）")
     print(f"{'='*60}")
     
     successful_categories = 0
@@ -243,14 +226,14 @@ def main():
         print(f"\n📂 正在处理分类: {category_name} (tid={tid})")
         
         # 获取数据
-        data_rows = get_bilibili_ranking_data(tid, category_name, target_count=10)
+        data_rows = get_bilibili_ranking_data(tid, category_name, TARGET_COUNT_PER_CATEGORY)
         
         if data_rows and len(data_rows) > 0:
             # 创建DataFrame
             df = pd.DataFrame(data_rows)
             
             # 保存到CSV
-            filename = f'data/B站TOP-{category_name}-高质量.csv'
+            filename = f'{DATA_DIR}/{CSV_PREFIX}-{category_name}-高质量.csv'
             df.to_csv(filename, index=False, encoding='utf_8_sig')
             successful_categories += 1
             print(f'✅ 写入成功: {filename}，共 {len(df)} 条高质量数据')
@@ -270,7 +253,7 @@ def main():
         
         # 添加延时避免请求过于频繁
         if category != categorys[-1]:  # 不是最后一个
-            delay = random.uniform(2, 4)
+            delay = random.uniform(REQUEST_DELAY_MIN, REQUEST_DELAY_MAX)
             print(f"⏰ 等待 {delay:.1f} 秒...")
             time.sleep(delay)
     
@@ -278,7 +261,7 @@ def main():
     print(f"🎉 数据爬取完成！")
     print(f"✅ 成功: {successful_categories} 个分类")
     print(f"❌ 失败: {failed_categories} 个分类")
-    print(f"📁 生成的CSV文件保存在 data/ 目录")
+    print(f"📁 生成的CSV文件保存在 {DATA_DIR}/ 目录")
     print(f"{'='*60}")
 
 if __name__ == "__main__":
