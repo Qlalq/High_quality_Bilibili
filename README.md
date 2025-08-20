@@ -2,7 +2,7 @@
 
 ## 项目介绍
 
-这是一个用于爬取B站各分类排行榜中高质量视频的爬虫工具。通过计算视频的点赞率（点赞数/播放数），筛选出点赞率大于0.1的高质量视频数据。
+这是一个用于爬取B站各分类排行榜（每类最多只有100条数据）中高质量视频的爬虫工具。通过计算视频的点赞率（点赞数/播放数），筛选出点赞率大于0.1的高质量视频数据。
 
 ## 功能特点
 
@@ -69,14 +69,32 @@ python bilibili_crawler.py
 
 ### 配置说明
 
-可在 `config.py` 中修改以下参数：
+所有爬虫参数都可以在 `config.py` 中修改：
 
 ```python
-LIKE_RATE_THRESHOLD = 0.1        # 点赞率阈值
-TARGET_COUNT_PER_CATEGORY = 10   # 每分类爬取数量
-REQUEST_DELAY_MIN = 2            # 最小请求间隔
-REQUEST_DELAY_MAX = 4            # 最大请求间隔
+# 数据质量阈值
+LIKE_RATE_THRESHOLD = 0.1        # 点赞率阈值，大于此值认为是高质量视频
+
+# 爬取设置  
+TARGET_COUNT_PER_CATEGORY = 10   # 每个分类爬取的目标视频数量
+REQUEST_DELAY_MIN = 2            # 请求间隔最小秒数
+REQUEST_DELAY_MAX = 4            # 请求间隔最大秒数
+REQUEST_TIMEOUT = 10             # 请求超时时间（秒）
+
+# 文件路径
+DATA_DIR = "data"                # 数据保存目录
+CSV_PREFIX = "B站TOP"            # CSV文件名前缀
+
+# API设置
+BASE_URL = "https://api.bilibili.com/x/web-interface/ranking/v2"
+HEADERS = {...}                  # 完整的请求头配置
 ```
+
+**配置优势**：
+- 🎯 **灵活调节**：可根据需求调整点赞率阈值和爬取数量
+- ⚡ **性能优化**：可调整请求延时避免被限制
+- 📁 **路径管理**：统一管理文件存储路径和命名规则
+- 🔧 **维护简单**：所有参数集中配置，便于维护
 
 ### 输出数据格式
 
